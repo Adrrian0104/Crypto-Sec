@@ -23,7 +23,7 @@
             display: flex;
             justify-content: center;
         }
-        .container { max-width: 900px; width: 100%; }
+        .container { max-width: 800px; width: 100%; }
         h1 { text-align: center; color: var(--accent); margin-bottom: 5px; }
         p.subtitle { text-align: center; color: var(--muted); margin-bottom: 25px; }
         .card {
@@ -60,6 +60,34 @@
         }
         button:hover { opacity: 0.9; }
         label { display: block; margin: 10px 0 5px; font-size: 0.85rem; color: var(--muted); font-weight: bold; }
+        
+        /* Selector de acción */
+        .action-selector {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .action-btn {
+            flex: 1;
+            background: #090d16;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 12px;
+            font-size: 0.95rem;
+        }
+        .action-btn.active-encrypt {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        .action-btn.active-decrypt {
+            background: var(--accent-green);
+            color: #000;
+            border-color: var(--accent-green);
+        }
+
+        /* Control de visibilidad de los módulos */
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -67,7 +95,7 @@
         <h1>CryptoSec</h1>
         <p class="subtitle">Herramienta Universal de Cifrado Asimétrico (RSA 2048-bits)</p>
 
-        <!-- MÓDULO 1: MIS CLAVES -->
+        <!-- MÓDULO 1: MIS CLAVES DIGITALES (SIEMPRE VISIBLE) -->
         <div class="card">
             <h2>1. Mis Claves Digitales</h2>
             <button onclick="generateKeys()">Generar Mi Par de Claves</button>
@@ -81,42 +109,66 @@
                     <textarea id="myPrivate" readonly placeholder="Genera tus claves..."></textarea>
                 </div>
             </div>
+
+            <!-- SELECCIÓN DE ACCIÓN -->
+            <label style="margin-top: 20px; font-size: 1rem; color: var(--text);">¿Qué deseas hacer?</label>
+            <div class="action-selector">
+                <button type="button" id="btnModeEncrypt" class="action-btn" onclick="selectMode('encrypt')">🔒 Cifrar Mensaje</button>
+                <button type="button" id="btnModeDecrypt" class="action-btn" onclick="selectMode('decrypt')">🔓 Descifrar Mensaje Recibido</button>
+            </div>
         </div>
 
-        <div class="grid">
-            <!-- MÓDULO 2: CIFRAR MENSAJE PARA OTRO USUARIO -->
-            <div class="card">
-                <h2>2. Cifrar Mensaje</h2>
-                <label>Clave Pública del Destinatario:</label>
-                <textarea id="destPublic" placeholder="Pega aquí la clave pública de la persona a la que le vas a enviar el mensaje..."></textarea>
-                
-                <label>Mensaje Claro:</label>
-                <textarea id="plainMsg" placeholder="Escribe tu texto confidencial..."></textarea>
-                
-                <button onclick="encryptMsg()">Cifrar Mensaje</button>
-                
-                <label>Criptograma Resultante (Enviar por WhatsApp):</label>
-                <textarea id="cipherResult" readonly placeholder="Copia este texto cifrado y envíalo por WhatsApp..."></textarea>
-            </div>
+        <!-- MÓDULO 2: CIFRAR MENSAJE -->
+        <div id="moduleEncrypt" class="card hidden">
+            <h2>2. Cifrar Mensaje</h2>
+            <label>Clave Pública del Destinatario:</label>
+            <textarea id="destPublic" placeholder="Pega aquí la clave pública de la persona a la que le vas a enviar el mensaje..."></textarea>
+            
+            <label>Mensaje Claro:</label>
+            <textarea id="plainMsg" placeholder="Escribe tu texto confidencial..."></textarea>
+            
+            <button onclick="encryptMsg()">Cifrar Mensaje</button>
+            
+            <label>Criptograma Resultante (Enviar por WhatsApp):</label>
+            <textarea id="cipherResult" readonly placeholder="Copia este texto cifrado y envíalo por WhatsApp..."></textarea>
+        </div>
 
-            <!-- MÓDULO 3: DESCIFRAR MENSAJE RECIBIDO -->
-            <div class="card">
-                <h2>3. Descifrar Mensaje Recibido</h2>
-                <label>Criptograma Recibido (De WhatsApp):</label>
-                <textarea id="cipherInput" placeholder="Pega aquí el texto cifrado que te enviaron por WhatsApp..."></textarea>
-                
-                <label>Mi Clave Privada (Para descifrar):</label>
-                <textarea id="myPrivateForDecrypt" placeholder="Pega tu clave privada o usa la generada arriba..."></textarea>
-                
-                <button style="background: var(--accent-green);" onclick="decryptMsg()">Descifrar Mensaje</button>
-                
-                <label>Mensaje Original Revelado:</label>
-                <textarea id="decryptedResult" readonly placeholder="Aquí aparecerá el mensaje claro..."></textarea>
-            </div>
+        <!-- MÓDULO 3: DESCIFRAR MENSAJE RECIBIDO -->
+        <div id="moduleDecrypt" class="card hidden">
+            <h2>3. Descifrar Mensaje Recibido</h2>
+            <label>Criptograma Recibido (De WhatsApp):</label>
+            <textarea id="cipherInput" placeholder="Pega aquí el texto cifrado que te enviaron por WhatsApp..."></textarea>
+            
+            <label>Mi Clave Privada (Para descifrar):</label>
+            <textarea id="myPrivateForDecrypt" placeholder="Pega tu clave privada o usa la generada arriba..."></textarea>
+            
+            <button style="background: var(--accent-green);" onclick="decryptMsg()">Descifrar Mensaje</button>
+            
+            <label>Mensaje Original Revelado:</label>
+            <textarea id="decryptedResult" readonly placeholder="Aquí aparecerá el mensaje claro..."></textarea>
         </div>
     </div>
 
     <script>
+        function selectMode(mode) {
+            const modEncrypt = document.getElementById('moduleEncrypt');
+            const modDecrypt = document.getElementById('moduleDecrypt');
+            const btnEnc = document.getElementById('btnModeEncrypt');
+            const btnDec = document.getElementById('btnModeDecrypt');
+
+            if (mode === 'encrypt') {
+                modEncrypt.classList.remove('hidden');
+                modDecrypt.classList.add('hidden');
+                btnEnc.classList.add('active-encrypt');
+                btnDec.classList.remove('active-decrypt');
+            } else {
+                modDecrypt.classList.remove('hidden');
+                modEncrypt.classList.add('hidden');
+                btnDec.classList.add('active-decrypt');
+                btnEnc.classList.remove('active-encrypt');
+            }
+        }
+
         async function generateKeys() {
             const res = await fetch('/generate-keys', { method: 'POST' });
             const data = await res.json();
