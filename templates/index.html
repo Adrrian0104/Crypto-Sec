@@ -3,46 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoSec - Cifrado Híbrido AES + RSA</title>
+    <title>CryptoSec — Hybrid AES + RSA Encryption</title>
     <style>
         :root {
-            --bg-1: #0a0e1f;
-            --bg-2: #150a2e;
-            --card-bg: rgba(30, 41, 59, 0.55);
-            --card-border: rgba(148, 163, 184, 0.18);
-            --accent: #38bdf8;
+            --bg-1: #05070f;
+            --bg-2: #0b0f24;
+            --card-bg: rgba(20, 27, 48, 0.55);
+            --card-border: rgba(148, 163, 184, 0.16);
+            --card-border-hover: rgba(56, 189, 248, 0.45);
+            --accent: #22d3ee;
             --accent-2: #818cf8;
             --accent-green: #22c55e;
             --accent-purple: #a78bfa;
             --accent-amber: #fbbf24;
-            --text: #f8fafc;
-            --muted: #9aa5b8;
+            --accent-red: #f87171;
+            --text: #f1f5f9;
+            --muted: #8b96ac;
         }
 
         * { box-sizing: border-box; }
-
-        html, body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
 
         body {
-            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
             color: var(--text);
             margin: 0;
-            padding: 40px 20px;
+            padding: 44px 20px 60px;
             display: flex;
             justify-content: center;
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
-            background: radial-gradient(circle at 15% 15%, #1b1140 0%, transparent 45%),
-                        radial-gradient(circle at 85% 20%, #072a3d 0%, transparent 50%),
-                        radial-gradient(circle at 50% 90%, #2a0f3d 0%, transparent 55%),
-                        linear-gradient(160deg, var(--bg-1), var(--bg-2) 60%, #06070f 100%);
+            background:
+                radial-gradient(circle at 12% 8%, rgba(34, 211, 238, 0.10) 0%, transparent 42%),
+                radial-gradient(circle at 88% 15%, rgba(129, 140, 248, 0.12) 0%, transparent 46%),
+                radial-gradient(circle at 50% 100%, rgba(167, 139, 250, 0.10) 0%, transparent 55%),
+                linear-gradient(165deg, var(--bg-1), var(--bg-2) 55%, #030308 100%);
             background-attachment: fixed;
+            perspective: 1400px;
         }
 
-        /* Fondo tipo red/circuito, sutil, decorativo */
         body::before {
             content: "";
             position: fixed;
@@ -50,75 +50,111 @@
             z-index: 0;
             pointer-events: none;
             background-image:
-                linear-gradient(rgba(56, 189, 248, 0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
-            background-size: 42px 42px;
-            mask-image: radial-gradient(circle at 50% 30%, black, transparent 75%);
+                linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: radial-gradient(circle at 50% 25%, black, transparent 72%);
         }
 
-        /* Halos difuminados en movimiento lento */
+        #particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.9), rgba(34, 211, 238, 0));
+            opacity: 0.5;
+            animation: drift linear infinite;
+        }
+        @keyframes drift {
+            from { transform: translateY(0) translateX(0); }
+            to   { transform: translateY(-120vh) translateX(20px); }
+        }
+
         .glow-orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.35;
+            filter: blur(100px);
+            opacity: 0.32;
             z-index: 0;
             pointer-events: none;
-            animation: float 14s ease-in-out infinite;
+            animation: float 16s ease-in-out infinite;
         }
-        .glow-orb.orb-1 { width: 380px; height: 380px; background: #38bdf8; top: -100px; left: -100px; }
-        .glow-orb.orb-2 { width: 420px; height: 420px; background: #a78bfa; bottom: -140px; right: -120px; animation-delay: -6s; }
-        .glow-orb.orb-3 { width: 260px; height: 260px; background: #22c55e; top: 45%; left: 60%; animation-delay: -3s; opacity: 0.2; }
-
+        .glow-orb.orb-1 { width: 420px; height: 420px; background: #22d3ee; top: -120px; left: -120px; }
+        .glow-orb.orb-2 { width: 460px; height: 460px; background: #a78bfa; bottom: -160px; right: -140px; animation-delay: -7s; }
+        .glow-orb.orb-3 { width: 280px; height: 280px; background: #818cf8; top: 42%; left: 58%; animation-delay: -3s; opacity: 0.18; }
         @keyframes float {
             0%, 100% { transform: translate(0, 0) scale(1); }
             50% { transform: translate(30px, -25px) scale(1.08); }
         }
 
-        .container { max-width: 840px; width: 100%; position: relative; z-index: 1; }
+        .container { max-width: 860px; width: 100%; position: relative; z-index: 1; }
 
-        header { text-align: center; margin-bottom: 32px; }
+        /* ===== Marca / Logo ===== */
+        header { text-align: center; margin-bottom: 36px; }
+        .logo-mark {
+            width: 64px; height: 64px;
+            margin: 0 auto 14px;
+            filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.55));
+            animation: pulse-glow 3.2s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.45)); }
+            50% { filter: drop-shadow(0 0 22px rgba(167, 139, 250, 0.6)); }
+        }
         .logo-badge {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            padding: 6px 16px;
+            gap: 8px;
+            padding: 5px 14px;
             border-radius: 999px;
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            background: rgba(34, 211, 238, 0.09);
+            border: 1px solid rgba(34, 211, 238, 0.3);
             color: var(--accent);
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            margin-bottom: 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+            text-transform: uppercase;
         }
         h1 {
-            margin: 0 0 8px;
-            font-size: 2.4rem;
+            margin: 0 0 6px;
+            font-size: 2.6rem;
             font-weight: 800;
-            background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-purple));
+            letter-spacing: -0.02em;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2) 55%, var(--accent-purple));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
-        p.subtitle { color: var(--muted); margin: 0; font-size: 0.95rem; }
+        p.subtitle { color: var(--muted); margin: 0; font-size: 0.95rem; letter-spacing: 0.01em; }
 
+        /* ===== Tarjetas con profundidad 3D ===== */
         .card {
             background: var(--card-bg);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 18px;
+            padding: 26px;
             margin-bottom: 22px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 10px 34px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255,255,255,0.03);
+            transform-style: preserve-3d;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            will-change: transform;
         }
+        .card:hover { border-color: var(--card-border-hover); }
         .card h2 {
             margin-top: 0;
-            font-size: 1.1rem;
+            font-size: 1.08rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            transform: translateZ(20px);
         }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -127,182 +163,206 @@
         textarea {
             width: 100%;
             height: 90px;
-            background: rgba(4, 8, 20, 0.75);
+            background: rgba(3, 6, 16, 0.78);
             border: 1px solid var(--card-border);
-            color: var(--accent-green);
+            color: #5eead4;
             font-family: "SFMono-Regular", Consolas, monospace;
             font-size: 0.82rem;
             padding: 10px;
             border-radius: 8px;
             resize: vertical;
         }
-        textarea:focus { outline: none; border-color: var(--accent); }
+        textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12); }
 
         button {
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            color: #05070f;
+            color: #04070f;
             border: none;
             padding: 12px 16px;
             font-weight: 700;
-            border-radius: 8px;
+            border-radius: 9px;
             cursor: pointer;
             width: 100%;
             margin-top: 8px;
             font-size: 0.92rem;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            letter-spacing: 0.01em;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+            position: relative;
         }
-        button:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(56, 189, 248, 0.25); }
+        button:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(34, 211, 238, 0.3); }
         button:active { transform: translateY(0); }
+        button:disabled { opacity: 0.6; cursor: progress; transform: none; }
+        button.btn-decrypt { background: linear-gradient(135deg, var(--accent-green), #16a34a); }
+        button.btn-decrypt:hover { box-shadow: 0 8px 22px rgba(34, 197, 94, 0.3); }
 
-        label { display: block; margin: 10px 0 6px; font-size: 0.82rem; color: var(--muted); font-weight: 600; }
-        .hint { color: var(--muted); font-size: 0.8rem; margin-top: 6px; line-height: 1.4; }
+        label { display: block; margin: 10px 0 6px; font-size: 0.8rem; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
+        .hint { color: var(--muted); font-size: 0.79rem; margin-top: 6px; line-height: 1.5; }
 
-        /* ===== Pantalla de elección de operación (hero) ===== */
-        .op-choice {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
+        /* ===== Elegir operación ===== */
+        .op-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 620px) { .op-choice { grid-template-columns: 1fr; } }
         .op-card {
-            background: rgba(4, 8, 20, 0.55);
+            background: rgba(3, 6, 16, 0.55);
             border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 26px 18px;
+            border-radius: 16px;
+            padding: 30px 18px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            transform-style: preserve-3d;
         }
-        .op-card:hover { transform: translateY(-3px); }
-        .op-card.op-encrypt:hover { border-color: var(--accent); box-shadow: 0 0 24px rgba(56, 189, 248, 0.25); }
-        .op-card.op-decrypt:hover { border-color: var(--accent-green); box-shadow: 0 0 24px rgba(34, 197, 94, 0.25); }
-        .op-icon { font-size: 2.4rem; display: block; margin-bottom: 10px; }
-        .op-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+        .op-card.op-encrypt:hover { border-color: var(--accent); box-shadow: 0 14px 34px rgba(34, 211, 238, 0.22); }
+        .op-card.op-decrypt:hover { border-color: var(--accent-green); box-shadow: 0 14px 34px rgba(34, 197, 94, 0.22); }
+        .op-icon { font-size: 2.5rem; display: block; margin-bottom: 12px; transform: translateZ(30px); }
+        .op-title { font-size: 1.08rem; font-weight: 700; margin-bottom: 4px; }
         .op-desc { font-size: 0.8rem; color: var(--muted); }
 
         .back-link {
-            background: none;
-            border: none;
-            color: var(--muted);
-            width: auto;
-            padding: 4px 0;
-            margin: 0 0 14px;
-            font-size: 0.82rem;
-            text-align: left;
-            cursor: pointer;
-            box-shadow: none;
+            background: none; border: none; color: var(--muted);
+            width: auto; padding: 4px 0; margin: 0 0 14px;
+            font-size: 0.82rem; text-align: left; cursor: pointer; box-shadow: none;
         }
         .back-link:hover { color: var(--accent); transform: none; box-shadow: none; }
 
         .mode-pill {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-bottom: 16px;
+            display: inline-block; padding: 4px 12px; border-radius: 999px;
+            font-size: 0.72rem; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.03em;
         }
-        .mode-pill.mode-encrypt { background: rgba(56, 189, 248, 0.15); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.4); }
+        .mode-pill.mode-encrypt { background: rgba(34, 211, 238, 0.15); color: var(--accent); border: 1px solid rgba(34, 211, 238, 0.4); }
         .mode-pill.mode-decrypt { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); border: 1px solid rgba(34, 197, 94, 0.4); }
 
         .selector-row { display: flex; gap: 12px; margin-top: 6px; margin-bottom: 6px; }
         .selector-btn {
-            flex: 1;
-            background: rgba(4, 8, 20, 0.55);
-            color: var(--muted);
-            border: 1px solid var(--card-border);
-            padding: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            flex: 1; background: rgba(3, 6, 16, 0.55); color: var(--muted);
+            border: 1px solid var(--card-border); padding: 12px; font-size: 0.9rem; font-weight: 600;
         }
         .selector-btn.active-tab {
             background: linear-gradient(135deg, var(--accent-purple), var(--accent-2));
-            color: #05070f;
-            border-color: var(--accent-purple);
+            color: #04070f; border-color: var(--accent-purple);
         }
 
         .hidden { display: none; }
 
         input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            background: rgba(4, 8, 20, 0.55);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            color: var(--text);
+            width: 100%; padding: 10px; background: rgba(3, 6, 16, 0.55);
+            border: 1px solid var(--card-border); border-radius: 8px; color: var(--text);
         }
 
-        .result-image {
-            max-width: 100%;
-            border-radius: 10px;
-            border: 1px solid var(--card-border);
-            margin-top: 10px;
-        }
+        .result-image { max-width: 100%; border-radius: 12px; border: 1px solid var(--card-border); margin-top: 10px; }
 
-        /* ===== Visualización del proceso híbrido ===== */
-        .flow { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; justify-content: center; }
+        /* ===== Visualización del flujo híbrido, conectado ===== */
+        .flow-wrap { margin: 20px 0 8px; }
+        .flow-track {
+            position: relative;
+            height: 4px;
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 4px;
+            margin: 0 4px 14px;
+            overflow: hidden;
+        }
+        .flow-track-fill {
+            position: absolute; inset: 0; width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-purple));
+            border-radius: 4px;
+            transition: width 0.45s ease;
+        }
+        .flow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
         .flow-step {
-            flex: 1;
-            min-width: 108px;
-            background: rgba(4, 8, 20, 0.6);
+            flex: 1; min-width: 104px;
+            background: rgba(3, 6, 16, 0.62);
             border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 12px 6px;
+            border-radius: 12px;
+            padding: 13px 6px;
             text-align: center;
-            font-size: 0.72rem;
+            font-size: 0.71rem;
             color: var(--muted);
             transition: all 0.3s ease;
         }
-        .flow-step .flow-icon { font-size: 1.4rem; display: block; margin-bottom: 6px; }
-        .flow-step.flow-active { transform: scale(1.06); }
-        .flow-step.flow-aes.flow-active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #05070f; border-color: var(--accent); }
-        .flow-step.flow-rsa.flow-active { background: linear-gradient(135deg, var(--accent-purple), #c084fc); color: #05070f; border-color: var(--accent-purple); }
-        .flow-step.flow-done { opacity: 0.5; }
+        .flow-step .flow-icon { font-size: 1.45rem; display: block; margin-bottom: 6px; }
+        .flow-step.flow-active { transform: translateY(-3px) scale(1.06); }
+        .flow-step.flow-aes.flow-active { background: linear-gradient(135deg, var(--accent), #06b6d4); color: #04070f; border-color: var(--accent); box-shadow: 0 6px 18px rgba(34, 211, 238, 0.35); }
+        .flow-step.flow-rsa.flow-active { background: linear-gradient(135deg, var(--accent-purple), #c084fc); color: #04070f; border-color: var(--accent-purple); box-shadow: 0 6px 18px rgba(167, 139, 250, 0.35); }
+        .flow-step.flow-done { opacity: 0.55; }
+        .flow-step.flow-done .flow-icon::after { content: " ✓"; }
 
-        .flow-status { text-align: center; font-size: 0.85rem; color: var(--accent-amber); min-height: 20px; margin-bottom: 6px; }
+        .flow-status {
+            text-align: center; font-size: 0.85rem; color: var(--accent-amber);
+            min-height: 20px; margin-bottom: 4px; font-weight: 600;
+        }
+        .flow-status.status-success { color: var(--accent-green); }
+        .flow-status.status-error { color: var(--accent-red); }
 
         .key-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(4, 8, 20, 0.6);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-family: monospace;
-            font-size: 0.78rem;
-            color: var(--accent-amber);
-            margin-top: 8px;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(3, 6, 16, 0.62); border: 1px solid var(--card-border);
+            border-radius: 20px; padding: 6px 14px; font-family: monospace;
+            font-size: 0.78rem; color: var(--accent-amber); margin-top: 8px;
         }
         .key-pill button { width: auto; padding: 2px 8px; font-size: 0.7rem; margin: 0; }
+
+        /* ===== Aviso de descifrado no válido (clave incorrecta) ===== */
+        .invalid-banner {
+            background: rgba(248, 113, 113, 0.08);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 12px 0;
+        }
+        .invalid-banner strong {
+            display: block;
+            color: var(--accent-red);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .invalid-banner p {
+            margin: 2px 0;
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .invalid-banner .invalid-sub {
+            color: var(--accent-amber);
+            font-weight: 600;
+        }
 
         .badge {
             display: inline-block;
             background: linear-gradient(135deg, var(--accent-purple), var(--accent-2));
-            color: #05070f;
-            font-size: 0.68rem;
-            font-weight: 800;
-            padding: 3px 10px;
-            border-radius: 10px;
-            margin-left: 8px;
-            vertical-align: middle;
+            color: #04070f; font-size: 0.66rem; font-weight: 800;
+            padding: 3px 10px; border-radius: 10px; margin-left: 8px; vertical-align: middle;
         }
+
+        footer { text-align: center; margin-top: 30px; color: var(--muted); font-size: 0.75rem; }
     </style>
 </head>
 <body>
+    <div id="particles"></div>
     <div class="glow-orb orb-1"></div>
     <div class="glow-orb orb-2"></div>
     <div class="glow-orb orb-3"></div>
 
     <div class="container">
         <header>
-            <div class="logo-badge">🔐 ESQUEMA HÍBRIDO</div>
+            <svg class="logo-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#22d3ee"/>
+                        <stop offset="100%" stop-color="#a78bfa"/>
+                    </linearGradient>
+                </defs>
+                <path d="M32 4 L56 14 V30 C56 45 46 55 32 60 C18 55 8 45 8 30 V14 Z"
+                      fill="none" stroke="url(#logoGrad)" stroke-width="2.5"/>
+                <rect x="24" y="28" width="16" height="14" rx="3" fill="none" stroke="url(#logoGrad)" stroke-width="2.2"/>
+                <path d="M27 28 V23 a5 5 0 0 1 10 0 V28" fill="none" stroke="url(#logoGrad)" stroke-width="2.2"/>
+                <circle cx="32" cy="35" r="1.8" fill="#22d3ee"/>
+            </svg>
+            <div class="logo-badge">🔐 Esquema Híbrido</div>
             <h1>CryptoSec</h1>
-            <p class="subtitle">AES-256-GCM cifra el contenido · RSA-2048-OAEP protege la clave</p>
+            <p class="subtitle">Hybrid AES-256-GCM + RSA-2048-OAEP Encryption</p>
         </header>
 
         <!-- ================= CLAVES RSA (siempre visibles) ================= -->
-        <div class="card">
+        <div class="card tilt-card">
             <h2>🗝️ Mis Claves RSA</h2>
             <p class="hint">
                 RSA no cifra tu mensaje ni tu imagen directamente: solo protege la clave AES
@@ -326,12 +386,12 @@
         <div class="card" id="opChoiceCard">
             <h2>¿Qué deseas hacer?</h2>
             <div class="op-choice">
-                <div class="op-card op-encrypt" onclick="selectOperation('encrypt')">
+                <div class="op-card op-encrypt tilt-card" onclick="selectOperation('encrypt')">
                     <span class="op-icon">🔒</span>
                     <div class="op-title">Cifrar</div>
                     <div class="op-desc">Proteger un texto o una imagen con AES + RSA</div>
                 </div>
-                <div class="op-card op-decrypt" onclick="selectOperation('decrypt')">
+                <div class="op-card op-decrypt tilt-card" onclick="selectOperation('decrypt')">
                     <span class="op-icon">🔓</span>
                     <div class="op-title">Descifrar</div>
                     <div class="op-desc">Recuperar un texto o imagen que recibiste cifrado</div>
@@ -340,7 +400,7 @@
         </div>
 
         <!-- ================= PASO 2: TIPO DE CONTENIDO ================= -->
-        <div class="card hidden" id="contentSelectorCard">
+        <div class="card hidden tilt-card" id="contentSelectorCard">
             <button class="back-link" onclick="backToOperationChoice()">← Cambiar operación</button>
             <span class="mode-pill" id="modePill"></span>
             <h2 id="contentSelectorTitle">Selecciona el tipo de contenido</h2>
@@ -351,7 +411,7 @@
         </div>
 
         <!-- ===== CIFRAR · TEXTO ===== -->
-        <div id="panelEncryptText" class="card hidden">
+        <div id="panelEncryptText" class="card hidden tilt-card">
             <h2>🔒 Cifrar Texto</h2>
             <label>Clave Pública RSA del Destinatario</label>
             <textarea id="encTextPubKey" placeholder="Pega la clave pública de quien recibirá el mensaje..."></textarea>
@@ -359,15 +419,18 @@
             <label>Mensaje Claro</label>
             <textarea id="encTextMessage" placeholder="Escribe el mensaje a proteger..."></textarea>
 
-            <button onclick="hybridEncryptText()">Cifrar (AES genera, RSA protege)</button>
+            <button id="btnEncText" onclick="hybridEncryptText()">Cifrar (AES genera, RSA protege)</button>
 
-            <div class="flow-status" id="flowStatusEncText"></div>
-            <div class="flow" id="flowEncText">
-                <div class="flow-step" data-step="0"><span class="flow-icon">📄</span>Contenido original</div>
-                <div class="flow-step flow-aes" data-step="1"><span class="flow-icon">🔑</span>Generar clave AES</div>
-                <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>Cifrar con AES</div>
-                <div class="flow-step flow-rsa" data-step="3"><span class="flow-icon">🛡️</span>Proteger clave con RSA</div>
-                <div class="flow-step" data-step="4"><span class="flow-icon">📦</span>Resultado final</div>
+            <div class="flow-wrap">
+                <div class="flow-status" id="flowStatusEncText"></div>
+                <div class="flow-track"><div class="flow-track-fill" id="trackEncText"></div></div>
+                <div class="flow" id="flowEncText">
+                    <div class="flow-step" data-step="0"><span class="flow-icon">📄</span>Contenido original</div>
+                    <div class="flow-step flow-aes" data-step="1"><span class="flow-icon">🔑</span>Generar clave AES</div>
+                    <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>Cifrar con AES</div>
+                    <div class="flow-step flow-rsa" data-step="3"><span class="flow-icon">🛡️</span>Proteger clave con RSA</div>
+                    <div class="flow-step" data-step="4"><span class="flow-icon">📦</span>Resultado final</div>
+                </div>
             </div>
             <div id="encTextKeyPreview"></div>
 
@@ -376,7 +439,7 @@
         </div>
 
         <!-- ===== DESCIFRAR · TEXTO ===== -->
-        <div id="panelDecryptText" class="card hidden">
+        <div id="panelDecryptText" class="card hidden tilt-card">
             <h2>🔓 Descifrar Texto</h2>
             <label>Paquete Cifrado Recibido</label>
             <textarea id="decTextPackage" placeholder="Pega aquí el paquete cifrado que recibiste..."></textarea>
@@ -384,14 +447,22 @@
             <label>Mi Clave Privada RSA</label>
             <textarea id="decTextPrivKey" placeholder="Pega tu clave privada o usa la generada arriba..."></textarea>
 
-            <button style="background: linear-gradient(135deg, var(--accent-green), #16a34a);" onclick="hybridDecryptText()">Descifrar (RSA recupera clave, AES revela contenido)</button>
+            <button id="btnDecText" class="btn-decrypt" onclick="hybridDecryptText()">Descifrar (RSA recupera clave, AES revela contenido)</button>
 
-            <div class="flow-status" id="flowStatusDecText"></div>
-            <div class="flow" id="flowDecText">
-                <div class="flow-step" data-step="0"><span class="flow-icon">📦</span>Paquete recibido</div>
-                <div class="flow-step flow-rsa" data-step="1"><span class="flow-icon">🛡️</span>RSA recupera clave AES</div>
-                <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>AES descifra contenido</div>
-                <div class="flow-step" data-step="3"><span class="flow-icon">📄</span>Contenido original</div>
+            <div class="flow-wrap">
+                <div class="flow-status" id="flowStatusDecText"></div>
+                <div class="flow-track"><div class="flow-track-fill" id="trackDecText"></div></div>
+                <div class="flow" id="flowDecText">
+                    <div class="flow-step" data-step="0"><span class="flow-icon">📦</span>Paquete recibido</div>
+                    <div class="flow-step flow-rsa" data-step="1"><span class="flow-icon">🛡️</span>RSA recupera clave AES</div>
+                    <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>AES descifra contenido</div>
+                    <div class="flow-step" data-step="3"><span class="flow-icon">📄</span>Contenido original</div>
+                </div>
+            </div>
+            <div id="decTextInvalidBanner" class="invalid-banner hidden">
+                <strong>⚠ Resultado no válido</strong>
+                <p>La clave proporcionada no permite recuperar el contenido original.</p>
+                <p class="invalid-sub">Contenido generado para la demostración.</p>
             </div>
             <div id="decTextKeyPreview"></div>
 
@@ -400,7 +471,7 @@
         </div>
 
         <!-- ===== CIFRAR · IMAGEN ===== -->
-        <div id="panelEncryptImage" class="card hidden">
+        <div id="panelEncryptImage" class="card hidden tilt-card">
             <h2>🔒 Cifrar Imagen</h2>
             <label>Clave Pública RSA del Destinatario</label>
             <textarea id="encImagePubKey" placeholder="Pega la clave pública de quien recibirá la imagen..."></textarea>
@@ -408,21 +479,24 @@
             <label>Selecciona una imagen</label>
             <input type="file" id="encImageFile" accept="image/*">
 
-            <button onclick="hybridEncryptImage()">Cifrar Imagen y Descargar (.hyb)</button>
+            <button id="btnEncImg" onclick="hybridEncryptImage()">Cifrar Imagen y Descargar (.hyb)</button>
 
-            <div class="flow-status" id="flowStatusEncImg"></div>
-            <div class="flow" id="flowEncImg">
-                <div class="flow-step" data-step="0"><span class="flow-icon">🖼️</span>Imagen original</div>
-                <div class="flow-step flow-aes" data-step="1"><span class="flow-icon">🔑</span>Generar clave AES</div>
-                <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>Cifrar con AES</div>
-                <div class="flow-step flow-rsa" data-step="3"><span class="flow-icon">🛡️</span>Proteger clave con RSA</div>
-                <div class="flow-step" data-step="4"><span class="flow-icon">📦</span>Archivo .hyb</div>
+            <div class="flow-wrap">
+                <div class="flow-status" id="flowStatusEncImg"></div>
+                <div class="flow-track"><div class="flow-track-fill" id="trackEncImg"></div></div>
+                <div class="flow" id="flowEncImg">
+                    <div class="flow-step" data-step="0"><span class="flow-icon">🖼️</span>Imagen original</div>
+                    <div class="flow-step flow-aes" data-step="1"><span class="flow-icon">🔑</span>Generar clave AES</div>
+                    <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>Cifrar con AES</div>
+                    <div class="flow-step flow-rsa" data-step="3"><span class="flow-icon">🛡️</span>Proteger clave con RSA</div>
+                    <div class="flow-step" data-step="4"><span class="flow-icon">📦</span>Archivo .hyb</div>
+                </div>
             </div>
             <p class="hint">Se descargará un archivo .hyb con la imagen cifrada y la clave AES protegida dentro.</p>
         </div>
 
         <!-- ===== DESCIFRAR · IMAGEN ===== -->
-        <div id="panelDecryptImage" class="card hidden">
+        <div id="panelDecryptImage" class="card hidden tilt-card">
             <h2>🔓 Descifrar Imagen</h2>
             <label>Archivo .hyb recibido</label>
             <input type="file" id="decImageFile" accept=".hyb">
@@ -430,23 +504,72 @@
             <label>Mi Clave Privada RSA</label>
             <textarea id="decImagePrivKey" placeholder="Pega tu clave privada o usa la generada arriba..."></textarea>
 
-            <button style="background: linear-gradient(135deg, var(--accent-green), #16a34a);" onclick="hybridDecryptImage()">Descifrar Imagen</button>
+            <button id="btnDecImg" class="btn-decrypt" onclick="hybridDecryptImage()">Descifrar Imagen</button>
 
-            <div class="flow-status" id="flowStatusDecImg"></div>
-            <div class="flow" id="flowDecImg">
-                <div class="flow-step" data-step="0"><span class="flow-icon">📦</span>Archivo .hyb</div>
-                <div class="flow-step flow-rsa" data-step="1"><span class="flow-icon">🛡️</span>RSA recupera clave AES</div>
-                <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>AES descifra imagen</div>
-                <div class="flow-step" data-step="3"><span class="flow-icon">🖼️</span>Imagen original</div>
+            <div class="flow-wrap">
+                <div class="flow-status" id="flowStatusDecImg"></div>
+                <div class="flow-track"><div class="flow-track-fill" id="trackDecImg"></div></div>
+                <div class="flow" id="flowDecImg">
+                    <div class="flow-step" data-step="0"><span class="flow-icon">📦</span>Archivo .hyb</div>
+                    <div class="flow-step flow-rsa" data-step="1"><span class="flow-icon">🛡️</span>RSA recupera clave AES</div>
+                    <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>AES descifra imagen</div>
+                    <div class="flow-step" data-step="3"><span class="flow-icon">🖼️</span>Imagen original</div>
+                </div>
+            </div>
+            <div id="decImageInvalidBanner" class="invalid-banner hidden">
+                <strong>⚠ Resultado no válido</strong>
+                <p>La clave proporcionada no permite recuperar la imagen original.</p>
+                <p class="invalid-sub">Imagen generada para la demostración.</p>
             </div>
 
             <div id="decImageResultContainer"></div>
         </div>
+
+        <footer>CryptoSec · Proyecto académico de Criptografía Aplicada · AES-256-GCM + RSA-2048-OAEP</footer>
     </div>
 
     <script>
         // ================================================================
+        // DECORACIÓN: partículas de fondo (puramente visual)
+        // ================================================================
+        (function initParticles() {
+            const container = document.getElementById('particles');
+            const count = window.innerWidth < 620 ? 16 : 30;
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = 2 + Math.random() * 3;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.bottom = -20 + 'px';
+                p.style.animationDuration = (14 + Math.random() * 16) + 's';
+                p.style.animationDelay = (Math.random() * 16) + 's';
+                container.appendChild(p);
+            }
+        })();
+
+        // ================================================================
+        // DECORACIÓN: tilt 3D sutil en tarjetas (solo estético)
+        // ================================================================
+        (function initTilt() {
+            const maxTilt = 4; // grados
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    card.style.transform = `rotateX(${(-y * maxTilt).toFixed(2)}deg) rotateY(${(x * maxTilt).toFixed(2)}deg)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                });
+            });
+        })();
+
+        // ================================================================
         // NAVEGACIÓN GUIADA: 1) elegir operación  2) elegir contenido
+        // (misma lógica funcional que antes, sin cambios de comportamiento)
         // ================================================================
         let currentOperation = null; // 'encrypt' | 'decrypt'
 
@@ -496,7 +619,7 @@
         }
 
         // ================================================================
-        // CLAVES RSA
+        // CLAVES RSA (sin cambios funcionales — mismo endpoint)
         // ================================================================
         async function generateKeys() {
             const res = await fetch('/generate-keys', { method: 'POST' });
@@ -506,26 +629,47 @@
         }
 
         // ================================================================
-        // VISUALIZACIÓN DEL FLUJO
+        // VISUALIZACIÓN DEL FLUJO (mejorada: barra de progreso + estados)
         // ================================================================
-        function animateFlow(flowId, statusId, messages, doneCallback) {
-            const steps = document.querySelectorAll('#' + flowId + ' .flow-step');
-            const status = document.getElementById(statusId);
-            steps.forEach(s => { s.classList.remove('flow-active', 'flow-done'); });
+        function animateFlow(flowId, statusId, trackId, messages, isError) {
+            return new Promise((resolve) => {
+                const steps = document.querySelectorAll('#' + flowId + ' .flow-step');
+                const status = document.getElementById(statusId);
+                const track = document.getElementById(trackId);
+                status.className = 'flow-status';
+                steps.forEach(s => s.classList.remove('flow-active', 'flow-done'));
+                track.style.width = '0%';
 
-            let i = 0;
-            const interval = setInterval(() => {
-                if (i > 0) steps[i - 1].classList.add('flow-done');
-                if (i < steps.length) {
-                    steps[i].classList.add('flow-active');
-                    status.textContent = messages[i] || '';
-                    i++;
-                } else {
-                    clearInterval(interval);
-                    status.textContent = messages[messages.length - 1] || 'Proceso completado.';
-                    if (doneCallback) doneCallback();
-                }
-            }, 480);
+                let i = 0;
+                const total = steps.length;
+                const interval = setInterval(() => {
+                    if (i > 0) steps[i - 1].classList.add('flow-done');
+                    if (i < total) {
+                        steps[i].classList.add('flow-active');
+                        status.textContent = messages[i] || '';
+                        track.style.width = (((i + 1) / total) * 100) + '%';
+                        i++;
+                    } else {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 420);
+            });
+        }
+
+        function setFlowResult(statusId, success, message) {
+            const status = document.getElementById(statusId);
+            status.textContent = message;
+            status.className = 'flow-status ' + (success ? 'status-success' : 'status-error');
+        }
+
+        // Cambia el icono/etiqueta del último paso del flujo, según si el
+        // descifrado resultó VÁLIDO (contenido original) o NO VÁLIDO
+        // (resultado aleatorio de demostración).
+        function setFinalStepLabel(flowId, icon, label) {
+            const steps = document.querySelectorAll('#' + flowId + ' .flow-step');
+            const last = steps[steps.length - 1];
+            if (last) last.innerHTML = `<span class="flow-icon">${icon}</span>${label}`;
         }
 
         function maskKey(base64Key) {
@@ -549,43 +693,58 @@
         }
 
         // ================================================================
-        // TEXTO — CIFRAR
+        // TEXTO — CIFRAR (mismo endpoint /hybrid/encrypt-text)
         // ================================================================
         async function hybridEncryptText() {
             const message = document.getElementById('encTextMessage').value;
             const publicKey = document.getElementById('encTextPubKey').value.trim();
+            const btn = document.getElementById('btnEncText');
 
             if (!message) return alert('Escribe un mensaje para cifrar.');
             if (!publicKey) return alert('Pega la clave pública RSA del destinatario.');
 
-            animateFlow('flowEncText', 'flowStatusEncText', [
+            btn.disabled = true;
+            const flowPromise = animateFlow('flowEncText', 'flowStatusEncText', 'trackEncText', [
                 'Tomando el contenido original...',
                 'Generando una clave AES-256 aleatoria...',
                 'Cifrando el mensaje con AES-GCM...',
                 'Protegiendo la clave AES con RSA-OAEP...',
-                'Paquete final listo para enviar.'
+                'Empaquetando resultado...'
             ]);
 
-            const res = await fetch('/hybrid/encrypt-text', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message, public_key: publicKey })
-            });
-            const data = await res.json();
+            try {
+                const [res] = await Promise.all([
+                    fetch('/hybrid/encrypt-text', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message, public_key: publicKey })
+                    }),
+                    flowPromise
+                ]);
+                const data = await res.json();
 
-            if (data.error) return alert(data.error);
+                if (data.error) {
+                    setFlowResult('flowStatusEncText', false, '✕ ' + data.error);
+                    return alert(data.error);
+                }
 
-            document.getElementById('encTextResult').value =
-                `${data.encrypted_key}.${data.nonce}.${data.ciphertext}`;
-            renderKeyPreview('encTextKeyPreview', data.aes_key_debug);
+                document.getElementById('encTextResult').value =
+                    `${data.encrypted_key}.${data.nonce}.${data.ciphertext}`;
+                renderKeyPreview('encTextKeyPreview', data.aes_key_debug);
+                setFlowResult('flowStatusEncText', true, '✓ Cifrado completado');
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         // ================================================================
-        // TEXTO — DESCIFRAR
+        // TEXTO — DESCIFRAR (mismo endpoint /hybrid/decrypt-text)
         // ================================================================
         async function hybridDecryptText() {
             const pkg = document.getElementById('decTextPackage').value.trim();
             const privateKey = document.getElementById('decTextPrivKey').value.trim();
+            const btn = document.getElementById('btnDecText');
+            const banner = document.getElementById('decTextInvalidBanner');
 
             if (!pkg) return alert('Pega el paquete cifrado.');
             if (!privateKey) return alert('Ingresa tu clave privada RSA.');
@@ -596,113 +755,182 @@
             }
             const [encrypted_key, nonce, ciphertext] = parts;
 
-            animateFlow('flowDecText', 'flowStatusDecText', [
+            btn.disabled = true;
+            banner.classList.add('hidden');
+            const flowPromise = animateFlow('flowDecText', 'flowStatusDecText', 'trackDecText', [
                 'Paquete cifrado recibido...',
                 'RSA recuperando la clave AES original...',
                 'AES-GCM descifrando el contenido...',
-                'Contenido original recuperado.'
+                'Validando integridad del resultado...'
             ]);
 
-            const res = await fetch('/hybrid/decrypt-text', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ encrypted_key, nonce, ciphertext, private_key: privateKey })
-            });
-            const data = await res.json();
+            try {
+                const [res] = await Promise.all([
+                    fetch('/hybrid/decrypt-text', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ encrypted_key, nonce, ciphertext, private_key: privateKey })
+                    }),
+                    flowPromise
+                ]);
+                const data = await res.json();
 
-            if (data.error) return alert(data.error);
+                // Error de solicitud (paquete incompleto, PEM mal formado, etc.)
+                // — distinto de "clave incorrecta": aquí sí es un error real.
+                if (data.error) {
+                    setFinalStepLabel('flowDecText', '✕', 'Error');
+                    setFlowResult('flowStatusDecText', false, '✕ ' + data.error);
+                    return alert(data.error);
+                }
 
-            document.getElementById('decTextResult').value = data.decrypted_message;
-            renderKeyPreview('decTextKeyPreview', data.aes_key_debug);
+                // Descifrado NO VÁLIDO: clave incorrecta o paquete alterado.
+                // El backend ya generó un texto aleatorio de demostración;
+                // nunca es (ni puede ser) el contenido original.
+                if (data.valid === false) {
+                    document.getElementById('decTextResult').value = data.decrypted_message;
+                    document.getElementById('decTextKeyPreview').innerHTML = '';
+                    banner.classList.remove('hidden');
+                    setFinalStepLabel('flowDecText', '🎲', 'Resultado aleatorio');
+                    setFlowResult('flowStatusDecText', false, '✕ Clave no válida — descifrado rechazado');
+                    return;
+                }
+
+                // Descifrado VÁLIDO: contenido original.
+                document.getElementById('decTextResult').value = data.decrypted_message;
+                renderKeyPreview('decTextKeyPreview', data.aes_key_debug);
+                setFinalStepLabel('flowDecText', '📄', 'Contenido original');
+                setFlowResult('flowStatusDecText', true, '✓ Descifrado completado');
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         // ================================================================
-        // IMAGEN — CIFRAR
+        // IMAGEN — CIFRAR (mismo endpoint /hybrid/encrypt-file)
         // ================================================================
         async function hybridEncryptImage() {
             const fileInput = document.getElementById('encImageFile');
             const publicKey = document.getElementById('encImagePubKey').value.trim();
+            const btn = document.getElementById('btnEncImg');
 
             if (!fileInput.files.length) return alert('Selecciona una imagen.');
             if (!publicKey) return alert('Pega la clave pública RSA del destinatario.');
 
-            animateFlow('flowEncImg', 'flowStatusEncImg', [
+            btn.disabled = true;
+            const flowPromise = animateFlow('flowEncImg', 'flowStatusEncImg', 'trackEncImg', [
                 'Leyendo la imagen original...',
                 'Generando una clave AES-256 aleatoria...',
                 'Cifrando la imagen con AES-GCM...',
                 'Protegiendo la clave AES con RSA-OAEP...',
-                'Archivo .hyb generado.'
+                'Empaquetando archivo .hyb...'
             ]);
 
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('public_key', publicKey);
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('public_key', publicKey);
 
-            const res = await fetch('/hybrid/encrypt-file', { method: 'POST', body: formData });
+                const [res] = await Promise.all([
+                    fetch('/hybrid/encrypt-file', { method: 'POST', body: formData }),
+                    flowPromise
+                ]);
 
-            if (!res.ok) {
-                const errData = await res.json();
-                return alert(errData.error || 'Error al cifrar la imagen.');
+                if (!res.ok) {
+                    const errData = await res.json();
+                    setFlowResult('flowStatusEncImg', false, '✕ ' + (errData.error || 'Error'));
+                    return alert(errData.error || 'Error al cifrar la imagen.');
+                }
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileInput.files[0].name + '.hyb';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                setFlowResult('flowStatusEncImg', true, '✓ Cifrado completado — descarga iniciada');
+            } finally {
+                btn.disabled = false;
             }
-
-            const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileInput.files[0].name + '.hyb';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
         }
 
         // ================================================================
-        // IMAGEN — DESCIFRAR
+        // IMAGEN — DESCIFRAR (mismo endpoint /hybrid/decrypt-file)
         // ================================================================
         async function hybridDecryptImage() {
             const fileInput = document.getElementById('decImageFile');
             const privateKey = document.getElementById('decImagePrivKey').value.trim();
             const container = document.getElementById('decImageResultContainer');
+            const banner = document.getElementById('decImageInvalidBanner');
+            const btn = document.getElementById('btnDecImg');
 
             if (!fileInput.files.length) return alert('Selecciona el archivo .hyb.');
             if (!privateKey) return alert('Ingresa tu clave privada RSA.');
 
-            animateFlow('flowDecImg', 'flowStatusDecImg', [
+            btn.disabled = true;
+            banner.classList.add('hidden');
+            const flowPromise = animateFlow('flowDecImg', 'flowStatusDecImg', 'trackDecImg', [
                 'Archivo .hyb recibido...',
                 'RSA recuperando la clave AES original...',
                 'AES-GCM descifrando la imagen...',
-                'Imagen original recuperada.'
+                'Validando integridad del resultado...'
             ]);
 
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('private_key', privateKey);
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('private_key', privateKey);
 
-            const res = await fetch('/hybrid/decrypt-file', { method: 'POST', body: formData });
+                const [res] = await Promise.all([
+                    fetch('/hybrid/decrypt-file', { method: 'POST', body: formData }),
+                    flowPromise
+                ]);
 
-            if (!res.ok) {
-                const errData = await res.json();
+                // Error de solicitud real (no se envió archivo, PEM inválido, etc.)
+                if (!res.ok) {
+                    const errData = await res.json();
+                    container.innerHTML = '';
+                    setFinalStepLabel('flowDecImg', '✕', 'Error');
+                    setFlowResult('flowStatusDecImg', false, '✕ ' + (errData.error || 'Error'));
+                    return alert(errData.error || 'Error al descifrar la imagen.');
+                }
+
+                // El backend siempre responde 200 aquí; la cabecera indica si
+                // el descifrado fue VÁLIDO (imagen original) o NO VÁLIDO
+                // (imagen aleatoria de demostración, por clave incorrecta o
+                // archivo alterado/corrupto).
+                const isValid = res.headers.get('X-Decryption-Valid') !== 'false';
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+
                 container.innerHTML = '';
-                return alert(errData.error || 'Error al descifrar la imagen.');
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'result-image';
+                container.appendChild(img);
+
+                if (isValid) {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'imagen_descifrada';
+                    a.textContent = '⬇️ Descargar imagen descifrada';
+                    a.style.display = 'block';
+                    a.style.marginTop = '10px';
+                    a.style.color = 'var(--accent)';
+                    container.appendChild(a);
+
+                    setFinalStepLabel('flowDecImg', '🖼️', 'Imagen original');
+                    setFlowResult('flowStatusDecImg', true, '✓ Descifrado completado');
+                } else {
+                    banner.classList.remove('hidden');
+                    setFinalStepLabel('flowDecImg', '🎲', 'Imagen aleatoria');
+                    setFlowResult('flowStatusDecImg', false, '✕ Clave no válida — descifrado rechazado');
+                }
+            } finally {
+                btn.disabled = false;
             }
-
-            const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
-
-            container.innerHTML = '';
-            const img = document.createElement('img');
-            img.src = url;
-            img.className = 'result-image';
-            container.appendChild(img);
-
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'imagen_descifrada';
-            a.textContent = '⬇️ Descargar imagen descifrada';
-            a.style.display = 'block';
-            a.style.marginTop = '10px';
-            a.style.color = 'var(--accent)';
-            container.appendChild(a);
         }
     </script>
 </body>
