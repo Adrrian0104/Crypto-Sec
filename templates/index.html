@@ -3,215 +3,706 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoSec - Cliente RSA</title>
+    <title>CryptoSec - Cifrado Híbrido AES + RSA</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
+            --bg-1: #0a0e1f;
+            --bg-2: #150a2e;
+            --card-bg: rgba(30, 41, 59, 0.55);
+            --card-border: rgba(148, 163, 184, 0.18);
             --accent: #38bdf8;
+            --accent-2: #818cf8;
             --accent-green: #22c55e;
+            --accent-purple: #a78bfa;
+            --accent-amber: #fbbf24;
             --text: #f8fafc;
-            --muted: #94a3b8;
-            --border: #334155;
-        }
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .container { max-width: 800px; width: 100%; }
-        h1 { text-align: center; color: var(--accent); margin-bottom: 5px; }
-        p.subtitle { text-align: center; color: var(--muted); margin-bottom: 25px; }
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        textarea {
-            width: 100%;
-            height: 95px;
-            background: #090d16;
-            border: 1px solid var(--border);
-            color: var(--accent-green);
-            font-family: monospace;
-            font-size: 0.85rem;
-            padding: 10px;
-            border-radius: 6px;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-        button {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 10px 15px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 5px;
-        }
-        button:hover { opacity: 0.9; }
-        label { display: block; margin: 10px 0 5px; font-size: 0.85rem; color: var(--muted); font-weight: bold; }
-        
-        /* Selector de acción */
-        .action-selector {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .action-btn {
-            flex: 1;
-            background: #090d16;
-            color: var(--muted);
-            border: 1px solid var(--border);
-            padding: 12px;
-            font-size: 0.95rem;
-        }
-        .action-btn.active-encrypt {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
-        }
-        .action-btn.active-decrypt {
-            background: var(--accent-green);
-            color: #000;
-            border-color: var(--accent-green);
+            --muted: #9aa5b8;
         }
 
-        /* Control de visibilidad de los módulos */
+        * { box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background: radial-gradient(circle at 15% 15%, #1b1140 0%, transparent 45%),
+                        radial-gradient(circle at 85% 20%, #072a3d 0%, transparent 50%),
+                        radial-gradient(circle at 50% 90%, #2a0f3d 0%, transparent 55%),
+                        linear-gradient(160deg, var(--bg-1), var(--bg-2) 60%, #06070f 100%);
+            background-attachment: fixed;
+        }
+
+        /* Fondo tipo red/circuito, sutil, decorativo */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(56, 189, 248, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: radial-gradient(circle at 50% 30%, black, transparent 75%);
+        }
+
+        /* Halos difuminados en movimiento lento */
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.35;
+            z-index: 0;
+            pointer-events: none;
+            animation: float 14s ease-in-out infinite;
+        }
+        .glow-orb.orb-1 { width: 380px; height: 380px; background: #38bdf8; top: -100px; left: -100px; }
+        .glow-orb.orb-2 { width: 420px; height: 420px; background: #a78bfa; bottom: -140px; right: -120px; animation-delay: -6s; }
+        .glow-orb.orb-3 { width: 260px; height: 260px; background: #22c55e; top: 45%; left: 60%; animation-delay: -3s; opacity: 0.2; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -25px) scale(1.08); }
+        }
+
+        .container { max-width: 840px; width: 100%; position: relative; z-index: 1; }
+
+        header { text-align: center; margin-bottom: 32px; }
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            margin-bottom: 14px;
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        p.subtitle { color: var(--muted); margin: 0; font-size: 0.95rem; }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+
+        textarea {
+            width: 100%;
+            height: 90px;
+            background: rgba(4, 8, 20, 0.75);
+            border: 1px solid var(--card-border);
+            color: var(--accent-green);
+            font-family: "SFMono-Regular", Consolas, monospace;
+            font-size: 0.82rem;
+            padding: 10px;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: var(--accent); }
+
+        button {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #05070f;
+            border: none;
+            padding: 12px 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            font-size: 0.92rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        button:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(56, 189, 248, 0.25); }
+        button:active { transform: translateY(0); }
+
+        label { display: block; margin: 10px 0 6px; font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+        .hint { color: var(--muted); font-size: 0.8rem; margin-top: 6px; line-height: 1.4; }
+
+        /* ===== Pantalla de elección de operación (hero) ===== */
+        .op-choice {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 620px) { .op-choice { grid-template-columns: 1fr; } }
+        .op-card {
+            background: rgba(4, 8, 20, 0.55);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 26px 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .op-card:hover { transform: translateY(-3px); }
+        .op-card.op-encrypt:hover { border-color: var(--accent); box-shadow: 0 0 24px rgba(56, 189, 248, 0.25); }
+        .op-card.op-decrypt:hover { border-color: var(--accent-green); box-shadow: 0 0 24px rgba(34, 197, 94, 0.25); }
+        .op-icon { font-size: 2.4rem; display: block; margin-bottom: 10px; }
+        .op-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+        .op-desc { font-size: 0.8rem; color: var(--muted); }
+
+        .back-link {
+            background: none;
+            border: none;
+            color: var(--muted);
+            width: auto;
+            padding: 4px 0;
+            margin: 0 0 14px;
+            font-size: 0.82rem;
+            text-align: left;
+            cursor: pointer;
+            box-shadow: none;
+        }
+        .back-link:hover { color: var(--accent); transform: none; box-shadow: none; }
+
+        .mode-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .mode-pill.mode-encrypt { background: rgba(56, 189, 248, 0.15); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.4); }
+        .mode-pill.mode-decrypt { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); border: 1px solid rgba(34, 197, 94, 0.4); }
+
+        .selector-row { display: flex; gap: 12px; margin-top: 6px; margin-bottom: 6px; }
+        .selector-btn {
+            flex: 1;
+            background: rgba(4, 8, 20, 0.55);
+            color: var(--muted);
+            border: 1px solid var(--card-border);
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .selector-btn.active-tab {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-2));
+            color: #05070f;
+            border-color: var(--accent-purple);
+        }
+
         .hidden { display: none; }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background: rgba(4, 8, 20, 0.55);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--text);
+        }
+
+        .result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            margin-top: 10px;
+        }
+
+        /* ===== Visualización del proceso híbrido ===== */
+        .flow { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; justify-content: center; }
+        .flow-step {
+            flex: 1;
+            min-width: 108px;
+            background: rgba(4, 8, 20, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px 6px;
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--muted);
+            transition: all 0.3s ease;
+        }
+        .flow-step .flow-icon { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+        .flow-step.flow-active { transform: scale(1.06); }
+        .flow-step.flow-aes.flow-active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #05070f; border-color: var(--accent); }
+        .flow-step.flow-rsa.flow-active { background: linear-gradient(135deg, var(--accent-purple), #c084fc); color: #05070f; border-color: var(--accent-purple); }
+        .flow-step.flow-done { opacity: 0.5; }
+
+        .flow-status { text-align: center; font-size: 0.85rem; color: var(--accent-amber); min-height: 20px; margin-bottom: 6px; }
+
+        .key-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(4, 8, 20, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: var(--accent-amber);
+            margin-top: 8px;
+        }
+        .key-pill button { width: auto; padding: 2px 8px; font-size: 0.7rem; margin: 0; }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-2));
+            color: #05070f;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 10px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>CryptoSec</h1>
-        <p class="subtitle">Herramienta Universal de Cifrado Asimétrico (RSA 2048-bits)</p>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
 
-        <!-- MÓDULO 1: MIS CLAVES DIGITALES (SIEMPRE VISIBLE) -->
+    <div class="container">
+        <header>
+            <div class="logo-badge">🔐 ESQUEMA HÍBRIDO</div>
+            <h1>CryptoSec</h1>
+            <p class="subtitle">AES-256-GCM cifra el contenido · RSA-2048-OAEP protege la clave</p>
+        </header>
+
+        <!-- ================= CLAVES RSA (siempre visibles) ================= -->
         <div class="card">
-            <h2>1. Mis Claves Digitales</h2>
-            <button onclick="generateKeys()">Generar Mi Par de Claves</button>
-            <div class="grid" style="margin-top: 10px;">
+            <h2>🗝️ Mis Claves RSA</h2>
+            <p class="hint">
+                RSA no cifra tu mensaje ni tu imagen directamente: solo protege la clave AES
+                generada en cada operación. Comparte tu clave <b>pública</b> con quien te
+                enviará contenido; tu clave <b>privada</b> es solo para ti.
+            </p>
+            <button onclick="generateKeys()">Generar Mi Par de Claves RSA</button>
+            <div class="grid" style="margin-top: 12px;">
                 <div>
-                    <label>Mi Clave Pública (Compartir libremente):</label>
+                    <label>Mi Clave Pública (compartir)</label>
                     <textarea id="myPublic" readonly placeholder="Genera tus claves..."></textarea>
                 </div>
                 <div>
-                    <label>Mi Clave Privada (NUNCA compartir):</label>
+                    <label>Mi Clave Privada (NUNCA compartir)</label>
                     <textarea id="myPrivate" readonly placeholder="Genera tus claves..."></textarea>
                 </div>
             </div>
+        </div>
 
-            <!-- SELECCIÓN DE ACCIÓN -->
-            <label style="margin-top: 20px; font-size: 1rem; color: var(--text);">¿Qué deseas hacer?</label>
-            <div class="action-selector">
-                <button type="button" id="btnModeEncrypt" class="action-btn" onclick="selectMode('encrypt')">🔒 Cifrar Mensaje</button>
-                <button type="button" id="btnModeDecrypt" class="action-btn" onclick="selectMode('decrypt')">🔓 Descifrar Mensaje Recibido</button>
+        <!-- ================= PASO 1: ELEGIR OPERACIÓN ================= -->
+        <div class="card" id="opChoiceCard">
+            <h2>¿Qué deseas hacer?</h2>
+            <div class="op-choice">
+                <div class="op-card op-encrypt" onclick="selectOperation('encrypt')">
+                    <span class="op-icon">🔒</span>
+                    <div class="op-title">Cifrar</div>
+                    <div class="op-desc">Proteger un texto o una imagen con AES + RSA</div>
+                </div>
+                <div class="op-card op-decrypt" onclick="selectOperation('decrypt')">
+                    <span class="op-icon">🔓</span>
+                    <div class="op-title">Descifrar</div>
+                    <div class="op-desc">Recuperar un texto o imagen que recibiste cifrado</div>
+                </div>
             </div>
         </div>
 
-        <!-- MÓDULO 2: CIFRAR MENSAJE -->
-        <div id="moduleEncrypt" class="card hidden">
-            <h2>2. Cifrar Mensaje</h2>
-            <label>Clave Pública del Destinatario:</label>
-            <textarea id="destPublic" placeholder="Pega aquí la clave pública de la persona a la que le vas a enviar el mensaje..."></textarea>
-            
-            <label>Mensaje Claro:</label>
-            <textarea id="plainMsg" placeholder="Escribe tu texto confidencial..."></textarea>
-            
-            <button onclick="encryptMsg()">Cifrar Mensaje</button>
-            
-            <label>Criptograma Resultante (Enviar por WhatsApp):</label>
-            <textarea id="cipherResult" readonly placeholder="Copia este texto cifrado y envíalo por WhatsApp..."></textarea>
+        <!-- ================= PASO 2: TIPO DE CONTENIDO ================= -->
+        <div class="card hidden" id="contentSelectorCard">
+            <button class="back-link" onclick="backToOperationChoice()">← Cambiar operación</button>
+            <span class="mode-pill" id="modePill"></span>
+            <h2 id="contentSelectorTitle">Selecciona el tipo de contenido</h2>
+            <div class="selector-row">
+                <button type="button" id="btnContentText" class="selector-btn" onclick="selectContent('text')">📝 Texto</button>
+                <button type="button" id="btnContentImage" class="selector-btn" onclick="selectContent('image')">🖼️ Imagen</button>
+            </div>
         </div>
 
-        <!-- MÓDULO 3: DESCIFRAR MENSAJE RECIBIDO -->
-        <div id="moduleDecrypt" class="card hidden">
-            <h2>3. Descifrar Mensaje Recibido</h2>
-            <label>Criptograma Recibido (De WhatsApp):</label>
-            <textarea id="cipherInput" placeholder="Pega aquí el texto cifrado que te enviaron por WhatsApp..."></textarea>
-            
-            <label>Mi Clave Privada (Para descifrar):</label>
-            <textarea id="myPrivateForDecrypt" placeholder="Pega tu clave privada o usa la generada arriba..."></textarea>
-            
-            <button style="background: var(--accent-green);" onclick="decryptMsg()">Descifrar Mensaje</button>
-            
-            <label>Mensaje Original Revelado:</label>
-            <textarea id="decryptedResult" readonly placeholder="Aquí aparecerá el mensaje claro..."></textarea>
+        <!-- ===== CIFRAR · TEXTO ===== -->
+        <div id="panelEncryptText" class="card hidden">
+            <h2>🔒 Cifrar Texto</h2>
+            <label>Clave Pública RSA del Destinatario</label>
+            <textarea id="encTextPubKey" placeholder="Pega la clave pública de quien recibirá el mensaje..."></textarea>
+
+            <label>Mensaje Claro</label>
+            <textarea id="encTextMessage" placeholder="Escribe el mensaje a proteger..."></textarea>
+
+            <button onclick="hybridEncryptText()">Cifrar (AES genera, RSA protege)</button>
+
+            <div class="flow-status" id="flowStatusEncText"></div>
+            <div class="flow" id="flowEncText">
+                <div class="flow-step" data-step="0"><span class="flow-icon">📄</span>Contenido original</div>
+                <div class="flow-step flow-aes" data-step="1"><span class="flow-icon">🔑</span>Generar clave AES</div>
+                <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>Cifrar con AES</div>
+                <div class="flow-step flow-rsa" data-step="3"><span class="flow-icon">🛡️</span>Proteger clave con RSA</div>
+                <div class="flow-step" data-step="4"><span class="flow-icon">📦</span>Resultado final</div>
+            </div>
+            <div id="encTextKeyPreview"></div>
+
+            <label>Paquete Cifrado (clave_protegida.nonce.contenido)</label>
+            <textarea id="encTextResult" readonly placeholder="Aquí aparecerá el paquete cifrado..."></textarea>
+        </div>
+
+        <!-- ===== DESCIFRAR · TEXTO ===== -->
+        <div id="panelDecryptText" class="card hidden">
+            <h2>🔓 Descifrar Texto</h2>
+            <label>Paquete Cifrado Recibido</label>
+            <textarea id="decTextPackage" placeholder="Pega aquí el paquete cifrado que recibiste..."></textarea>
+
+            <label>Mi Clave Privada RSA</label>
+            <textarea id="decTextPrivKey" placeholder="Pega tu clave privada o usa la generada arriba..."></textarea>
+
+            <button style="background: linear-gradient(135deg, var(--accent-green), #16a34a);" onclick="hybridDecryptText()">Descifrar (RSA recupera clave, AES revela contenido)</button>
+
+            <div class="flow-status" id="flowStatusDecText"></div>
+            <div class="flow" id="flowDecText">
+                <div class="flow-step" data-step="0"><span class="flow-icon">📦</span>Paquete recibido</div>
+                <div class="flow-step flow-rsa" data-step="1"><span class="flow-icon">🛡️</span>RSA recupera clave AES</div>
+                <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>AES descifra contenido</div>
+                <div class="flow-step" data-step="3"><span class="flow-icon">📄</span>Contenido original</div>
+            </div>
+            <div id="decTextKeyPreview"></div>
+
+            <label>Mensaje Original Revelado</label>
+            <textarea id="decTextResult" readonly placeholder="Aquí aparecerá el mensaje claro..."></textarea>
+        </div>
+
+        <!-- ===== CIFRAR · IMAGEN ===== -->
+        <div id="panelEncryptImage" class="card hidden">
+            <h2>🔒 Cifrar Imagen</h2>
+            <label>Clave Pública RSA del Destinatario</label>
+            <textarea id="encImagePubKey" placeholder="Pega la clave pública de quien recibirá la imagen..."></textarea>
+
+            <label>Selecciona una imagen</label>
+            <input type="file" id="encImageFile" accept="image/*">
+
+            <button onclick="hybridEncryptImage()">Cifrar Imagen y Descargar (.hyb)</button>
+
+            <div class="flow-status" id="flowStatusEncImg"></div>
+            <div class="flow" id="flowEncImg">
+                <div class="flow-step" data-step="0"><span class="flow-icon">🖼️</span>Imagen original</div>
+                <div class="flow-step flow-aes" data-step="1"><span class="flow-icon">🔑</span>Generar clave AES</div>
+                <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>Cifrar con AES</div>
+                <div class="flow-step flow-rsa" data-step="3"><span class="flow-icon">🛡️</span>Proteger clave con RSA</div>
+                <div class="flow-step" data-step="4"><span class="flow-icon">📦</span>Archivo .hyb</div>
+            </div>
+            <p class="hint">Se descargará un archivo .hyb con la imagen cifrada y la clave AES protegida dentro.</p>
+        </div>
+
+        <!-- ===== DESCIFRAR · IMAGEN ===== -->
+        <div id="panelDecryptImage" class="card hidden">
+            <h2>🔓 Descifrar Imagen</h2>
+            <label>Archivo .hyb recibido</label>
+            <input type="file" id="decImageFile" accept=".hyb">
+
+            <label>Mi Clave Privada RSA</label>
+            <textarea id="decImagePrivKey" placeholder="Pega tu clave privada o usa la generada arriba..."></textarea>
+
+            <button style="background: linear-gradient(135deg, var(--accent-green), #16a34a);" onclick="hybridDecryptImage()">Descifrar Imagen</button>
+
+            <div class="flow-status" id="flowStatusDecImg"></div>
+            <div class="flow" id="flowDecImg">
+                <div class="flow-step" data-step="0"><span class="flow-icon">📦</span>Archivo .hyb</div>
+                <div class="flow-step flow-rsa" data-step="1"><span class="flow-icon">🛡️</span>RSA recupera clave AES</div>
+                <div class="flow-step flow-aes" data-step="2"><span class="flow-icon">🧩</span>AES descifra imagen</div>
+                <div class="flow-step" data-step="3"><span class="flow-icon">🖼️</span>Imagen original</div>
+            </div>
+
+            <div id="decImageResultContainer"></div>
         </div>
     </div>
 
     <script>
-        function selectMode(mode) {
-            const modEncrypt = document.getElementById('moduleEncrypt');
-            const modDecrypt = document.getElementById('moduleDecrypt');
-            const btnEnc = document.getElementById('btnModeEncrypt');
-            const btnDec = document.getElementById('btnModeDecrypt');
+        // ================================================================
+        // NAVEGACIÓN GUIADA: 1) elegir operación  2) elegir contenido
+        // ================================================================
+        let currentOperation = null; // 'encrypt' | 'decrypt'
 
-            if (mode === 'encrypt') {
-                modEncrypt.classList.remove('hidden');
-                modDecrypt.classList.add('hidden');
-                btnEnc.classList.add('active-encrypt');
-                btnDec.classList.remove('active-decrypt');
-            } else {
-                modDecrypt.classList.remove('hidden');
-                modEncrypt.classList.add('hidden');
-                btnDec.classList.add('active-decrypt');
-                btnEnc.classList.remove('active-encrypt');
-            }
+        function hideAllPanels() {
+            ['panelEncryptText', 'panelDecryptText', 'panelEncryptImage', 'panelDecryptImage']
+                .forEach(id => document.getElementById(id).classList.add('hidden'));
         }
 
+        function selectOperation(op) {
+            currentOperation = op;
+
+            document.getElementById('opChoiceCard').classList.add('hidden');
+            document.getElementById('contentSelectorCard').classList.remove('hidden');
+            hideAllPanels();
+
+            const pill = document.getElementById('modePill');
+            const title = document.getElementById('contentSelectorTitle');
+            if (op === 'encrypt') {
+                pill.textContent = '🔒 Modo: Cifrar';
+                pill.className = 'mode-pill mode-encrypt';
+                title.textContent = '¿Qué quieres cifrar?';
+            } else {
+                pill.textContent = '🔓 Modo: Descifrar';
+                pill.className = 'mode-pill mode-decrypt';
+                title.textContent = '¿Qué quieres descifrar?';
+            }
+
+            document.getElementById('btnContentText').classList.remove('active-tab');
+            document.getElementById('btnContentImage').classList.remove('active-tab');
+        }
+
+        function backToOperationChoice() {
+            currentOperation = null;
+            document.getElementById('opChoiceCard').classList.remove('hidden');
+            document.getElementById('contentSelectorCard').classList.add('hidden');
+            hideAllPanels();
+        }
+
+        function selectContent(type) {
+            document.getElementById('btnContentText').classList.toggle('active-tab', type === 'text');
+            document.getElementById('btnContentImage').classList.toggle('active-tab', type === 'image');
+            hideAllPanels();
+
+            const panelId = 'panel' + (currentOperation === 'encrypt' ? 'Encrypt' : 'Decrypt') +
+                             (type === 'text' ? 'Text' : 'Image');
+            document.getElementById(panelId).classList.remove('hidden');
+        }
+
+        // ================================================================
+        // CLAVES RSA
+        // ================================================================
         async function generateKeys() {
             const res = await fetch('/generate-keys', { method: 'POST' });
             const data = await res.json();
             document.getElementById('myPublic').value = data.public_key;
             document.getElementById('myPrivate').value = data.private_key;
-            document.getElementById('myPrivateForDecrypt').value = data.private_key;
         }
 
-        async function encryptMsg() {
-            const message = document.getElementById('plainMsg').value;
-            const publicKey = document.getElementById('destPublic').value;
-            if (!publicKey) return alert("Pega la clave pública del destinatario.");
+        // ================================================================
+        // VISUALIZACIÓN DEL FLUJO
+        // ================================================================
+        function animateFlow(flowId, statusId, messages, doneCallback) {
+            const steps = document.querySelectorAll('#' + flowId + ' .flow-step');
+            const status = document.getElementById(statusId);
+            steps.forEach(s => { s.classList.remove('flow-active', 'flow-done'); });
 
-            const res = await fetch('/encrypt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, public_key: publicKey })
-            });
-            const data = await res.json();
-            if (data.ciphertext) {
-                document.getElementById('cipherResult').value = data.ciphertext;
-            } else {
-                alert(data.error);
-            }
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i > 0) steps[i - 1].classList.add('flow-done');
+                if (i < steps.length) {
+                    steps[i].classList.add('flow-active');
+                    status.textContent = messages[i] || '';
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    status.textContent = messages[messages.length - 1] || 'Proceso completado.';
+                    if (doneCallback) doneCallback();
+                }
+            }, 480);
         }
 
-        async function decryptMsg() {
-            const ciphertext = document.getElementById('cipherInput').value;
-            const privateKey = document.getElementById('myPrivateForDecrypt').value;
-            if (!ciphertext) return alert("Ingresa el texto cifrado.");
-            if (!privateKey) return alert("Ingresa tu clave privada.");
+        function maskKey(base64Key) {
+            if (!base64Key) return '';
+            if (base64Key.length <= 10) return base64Key;
+            return base64Key.slice(0, 6) + ' •••• (clave AES oculta) •••• ' + base64Key.slice(-4);
+        }
 
-            const res = await fetch('/decrypt', {
+        function renderKeyPreview(containerId, aesKeyB64) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="key-pill">
+                    🔑 ${maskKey(aesKeyB64)}
+                    <button type="button" onclick="this.parentElement.querySelector('span').classList.toggle('hidden')">Revelar</button>
+                    <span class="hidden">${aesKeyB64}</span>
+                </div>
+                <p class="hint">Esta es la clave AES-256 generada para ESTA operación. Ya quedó protegida
+                dentro del paquete cifrado mediante RSA; en un sistema real no se mostraría así, se incluye
+                aquí solo con fines académicos.</p>
+            `;
+        }
+
+        // ================================================================
+        // TEXTO — CIFRAR
+        // ================================================================
+        async function hybridEncryptText() {
+            const message = document.getElementById('encTextMessage').value;
+            const publicKey = document.getElementById('encTextPubKey').value.trim();
+
+            if (!message) return alert('Escribe un mensaje para cifrar.');
+            if (!publicKey) return alert('Pega la clave pública RSA del destinatario.');
+
+            animateFlow('flowEncText', 'flowStatusEncText', [
+                'Tomando el contenido original...',
+                'Generando una clave AES-256 aleatoria...',
+                'Cifrando el mensaje con AES-GCM...',
+                'Protegiendo la clave AES con RSA-OAEP...',
+                'Paquete final listo para enviar.'
+            ]);
+
+            const res = await fetch('/hybrid/encrypt-text', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ciphertext: ciphertext, private_key: privateKey })
+                body: JSON.stringify({ message, public_key: publicKey })
             });
             const data = await res.json();
-            if (data.decrypted_message) {
-                document.getElementById('decryptedResult').value = data.decrypted_message;
-            } else {
-                alert(data.error);
+
+            if (data.error) return alert(data.error);
+
+            document.getElementById('encTextResult').value =
+                `${data.encrypted_key}.${data.nonce}.${data.ciphertext}`;
+            renderKeyPreview('encTextKeyPreview', data.aes_key_debug);
+        }
+
+        // ================================================================
+        // TEXTO — DESCIFRAR
+        // ================================================================
+        async function hybridDecryptText() {
+            const pkg = document.getElementById('decTextPackage').value.trim();
+            const privateKey = document.getElementById('decTextPrivKey').value.trim();
+
+            if (!pkg) return alert('Pega el paquete cifrado.');
+            if (!privateKey) return alert('Ingresa tu clave privada RSA.');
+
+            const parts = pkg.split('.');
+            if (parts.length !== 3) {
+                return alert('El paquete no tiene el formato esperado (clave.nonce.contenido).');
             }
+            const [encrypted_key, nonce, ciphertext] = parts;
+
+            animateFlow('flowDecText', 'flowStatusDecText', [
+                'Paquete cifrado recibido...',
+                'RSA recuperando la clave AES original...',
+                'AES-GCM descifrando el contenido...',
+                'Contenido original recuperado.'
+            ]);
+
+            const res = await fetch('/hybrid/decrypt-text', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ encrypted_key, nonce, ciphertext, private_key: privateKey })
+            });
+            const data = await res.json();
+
+            if (data.error) return alert(data.error);
+
+            document.getElementById('decTextResult').value = data.decrypted_message;
+            renderKeyPreview('decTextKeyPreview', data.aes_key_debug);
+        }
+
+        // ================================================================
+        // IMAGEN — CIFRAR
+        // ================================================================
+        async function hybridEncryptImage() {
+            const fileInput = document.getElementById('encImageFile');
+            const publicKey = document.getElementById('encImagePubKey').value.trim();
+
+            if (!fileInput.files.length) return alert('Selecciona una imagen.');
+            if (!publicKey) return alert('Pega la clave pública RSA del destinatario.');
+
+            animateFlow('flowEncImg', 'flowStatusEncImg', [
+                'Leyendo la imagen original...',
+                'Generando una clave AES-256 aleatoria...',
+                'Cifrando la imagen con AES-GCM...',
+                'Protegiendo la clave AES con RSA-OAEP...',
+                'Archivo .hyb generado.'
+            ]);
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('public_key', publicKey);
+
+            const res = await fetch('/hybrid/encrypt-file', { method: 'POST', body: formData });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                return alert(errData.error || 'Error al cifrar la imagen.');
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileInput.files[0].name + '.hyb';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // ================================================================
+        // IMAGEN — DESCIFRAR
+        // ================================================================
+        async function hybridDecryptImage() {
+            const fileInput = document.getElementById('decImageFile');
+            const privateKey = document.getElementById('decImagePrivKey').value.trim();
+            const container = document.getElementById('decImageResultContainer');
+
+            if (!fileInput.files.length) return alert('Selecciona el archivo .hyb.');
+            if (!privateKey) return alert('Ingresa tu clave privada RSA.');
+
+            animateFlow('flowDecImg', 'flowStatusDecImg', [
+                'Archivo .hyb recibido...',
+                'RSA recuperando la clave AES original...',
+                'AES-GCM descifrando la imagen...',
+                'Imagen original recuperada.'
+            ]);
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('private_key', privateKey);
+
+            const res = await fetch('/hybrid/decrypt-file', { method: 'POST', body: formData });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                container.innerHTML = '';
+                return alert(errData.error || 'Error al descifrar la imagen.');
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            container.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'result-image';
+            container.appendChild(img);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'imagen_descifrada';
+            a.textContent = '⬇️ Descargar imagen descifrada';
+            a.style.display = 'block';
+            a.style.marginTop = '10px';
+            a.style.color = 'var(--accent)';
+            container.appendChild(a);
         }
     </script>
 </body>
